@@ -24,7 +24,7 @@ swarmBestValue = inf;
 for iIteration = 1:nIterations
     for iParticle = 1:swarmSize
         position = particlePositions(iParticle, :);
-        newValue = EvaluateFunction(position);
+        newValue = EvaluateFunction(position(1),position(2));
         if newValue < particleBestValues(iParticle)
             particleBestPositions(iParticle,:) = position;
             particleBestValues(iParticle) = newValue;
@@ -43,5 +43,6 @@ for iIteration = 1:nIterations
     end
 end
 
-swarmBestPosition
-swarmBestValue
+plot(swarmBestPosition(1),swarmBestPosition(2), 'ro')
+fprintf('Optimum position:\n(%.6f, %.6f)\n', swarmBestPosition)
+fprintf('Optimum value:\n%.6f\n', swarmBestValue)

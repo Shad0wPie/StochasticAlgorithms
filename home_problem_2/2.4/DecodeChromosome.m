@@ -1,6 +1,6 @@
 function estimatedValues = DecodeChromosome(chromosome, x, constantRegisters, nVariableRegisters)
     
-    cMax = 1000;
+    cMax = 1e10;
     
     nValues = length(x);
     
@@ -26,6 +26,7 @@ function estimatedValues = DecodeChromosome(chromosome, x, constantRegisters, nV
             registers(:,destination) = registers(:,operand1) ./ registers(:,operand2);
             registers(operand2IsZero,destination) = cMax;
         end
+        
         registers(registers(:,destination)==Inf, destination) = cMax;
         registers(registers(:,destination)==-Inf, destination) = -cMax;
     end

@@ -12,7 +12,7 @@ function fitness = EvaluateIndividual(chromosome, functionData, constantRegister
     fitness = 1/error;
     chromosomeLength = length(chromosome);
     if chromosomeLength > maxChromosomeLength
-        fitness = fitness * fitnessPenalty;
+        fitness = fitness * fitnessPenalty^(chromosomeLength-maxChromosomeLength);
     end
     
 end

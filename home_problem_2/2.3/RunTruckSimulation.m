@@ -1,4 +1,4 @@
-function [distance, time] = RunTruckSimulation(networkWeights, networkBiases, timeStep, iSlope, iDataSet)
+function [distance, time, extraMetrics] = RunTruckSimulation(networkWeights, timeStep, iSlope, iDataSet, bStoreExtraMetrics)
 
     % Constants that are fixed by the assignment
     gravityConstant = 9.82;  % m/s^2
@@ -17,6 +17,9 @@ function [distance, time] = RunTruckSimulation(networkWeights, networkBiases, ti
     heatingConstant = 40;  % K/s
     engineBrakeForces = [7, 5, 4, 3, 2.5, 2, 1.6, 1.4, 1.2, 1] * 3000;  % N (by gear)
     
+    extraMetrics = struct('distances', [], 'velocities', [], 'slopeAngles',[], ...
+        'brakeTemperatures',[],'brakePressures',[],'gears',[]);
+
     bSimulationEnded = false;
     time = 0;
     timeSinceLastGearShift = Inf;
@@ -24,10 +27,12 @@ function [distance, time] = RunTruckSimulation(networkWeights, networkBiases, ti
     velocity = startingVelocity;
     gear = startingGear;
     brakeTemperature = startingBrakeTemperature;
+    iIteration = 0;
     while ~bSimulationEnded
+        iIteration = iIteration + 1;
         time = time+timeStep;
         timeSinceLastGearShift = timeSinceLastGearShift + timeStep;
-        slopeAngle = GetSlopeAngle(distance, iSlope, iDataSet);
+        slopeAngle = GetSlopeAngle(distance, iSlope, iDataSet);        
         
         %validation
         if slopeAngle > maxSlopeAngle || slopeAngle < 0
@@ -35,11 +40,10 @@ function [distance, time] = RunTruckSimulation(networkWeights, networkBiases, ti
             disp(slopeAngle)
         end
         
-%         networkInputs = [currentVelocity/maxVelocity, slopeAngle/maxSlopeAngle, brakeTemperature/maxBrakeTemperature];
-%         outputs = EvaluateNetwork(networkInputs, networkWeights, biases, beta);
-        outputs = [0.05,-1];
-        brakePressure = outputs(1);
-        gearDelta = outputs(2);
+        networkInputs = [velocity/maxVelocity, slopeAngle/maxSlopeAngle, brakeTemperature/maxBrakeTemperature, 1];  % the 1 represents the bias
+        outputs = EvaluateNetwork(networkInputs, networkWeights);
+%         outputs = [0.05,-1];
+        [brakePressure, gearDelta] = ParseNNOutputs(outputs);
         if gearDelta ~= 0 && timeSinceLastGearShift > minTimeBetweenGearShifts
             if ~(gearDelta == -1 && gear == 1) && ~(gearDelta == 1 && gear == length(engineBrakeForces))
                 gear = gear + gearDelta;
@@ -54,9 +58,19 @@ function [distance, time] = RunTruckSimulation(networkWeights, networkBiases, ti
         
         if distance >= slopeLength || velocity > maxVelocity || velocity < minVelocity || brakeTemperature > maxBrakeTemperature
             bSimulationEnded = true;
-            disp(distance);
-            disp(velocity);
-            disp(brakeTemperature);
+            distance = min(distance,1000);
+%             disp(distance);
+%             disp(velocity);
+%             disp(brakeTemperature);
+        end
+        
+        if bStoreExtraMetrics
+            extraMetrics.distances = [extraMetrics.distances distance];
+            extraMetrics.velocities = [extraMetrics.velocities velocity];
+            extraMetrics.slopeAngles = [extraMetrics.slopeAngles slopeAngle];
+            extraMetrics.brakeTemperatures = [extraMetrics.brakeTemperatures brakeTemperature];
+            extraMetrics.brakePressures = [extraMetrics.brakePressures brakePressure];
+            extraMetrics.gears = [extraMetrics.gears gear];
         end
     end
 

@@ -3,10 +3,10 @@ clearvars, close all
 cityLocations = LoadCityLocations();
 
 populationSize = 100;
-mutationProbability = 0.02;
-tournamentSelectionParameter = 0.6;    
+mutationProbability = 2/50;
+tournamentSelectionParameter = 0.7;    
 tournamentSize = 2;
-numberOfGenerations = 20000;
+numberOfGenerations = 50000;
 elitismParameter = 1;
 
 nCities = size(cityLocations,1);
@@ -59,11 +59,12 @@ for iGeneration = 1:numberOfGenerations
     
     if maximumFitness > bestFitness
         bestFitness = maximumFitness;
-        bestPath = bestTravelOrder
-        bestDistance = CalculateTotalDistance(bestTravelOrder, cityLocations)
+        bestPath = bestTravelOrder;
+        bestDistance = CalculateTotalDistance(bestTravelOrder, cityLocations);
+        fprintf('Generation %d. Best Distance: %.4f\n', iGeneration, bestDistance);
         PlotPath(connection, cityLocations, bestTravelOrder);
     end
 end
 
-fprintf("Length of shortest path: %d\n", bestDistance);
-fprintf("Fitness of shortest path: %d\n", maximumFitness);
+fprintf('Length of shortest path: %d\n', bestDistance);
+fprintf('Fitness of shortest path: %d\n', maximumFitness);

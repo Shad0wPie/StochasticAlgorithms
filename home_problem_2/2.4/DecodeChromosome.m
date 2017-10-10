@@ -4,7 +4,7 @@ function estimatedValues = DecodeChromosome(chromosome, x, constantRegisters, nV
     
     nValues = length(x);
     
-    registers = [x*ones(1, nVariableRegisters), ones(nValues,1) * constantRegisters];
+    registers = [x zeros(nValues, nVariableRegisters), ones(nValues,1) * constantRegisters];
 
     nInstructions = length(chromosome) / 4;
     

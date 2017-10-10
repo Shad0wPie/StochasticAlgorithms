@@ -1,4 +1,3 @@
-
 swarmSize = 100;
 nIterations = 2000;
 cognitiveComponent = 2;
@@ -43,6 +42,6 @@ for iIteration = 1:nIterations
     end
 end
 
-plot(swarmBestPosition(1),swarmBestPosition(2), 'ro')
+% plot(swarmBestPosition(1),swarmBestPosition(2), 'ro')
 fprintf('Optimum position:\n(%.6f, %.6f)\n', swarmBestPosition)
 fprintf('Optimum value:\n%.6f\n', swarmBestValue)

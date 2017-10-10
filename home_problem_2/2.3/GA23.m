@@ -1,12 +1,12 @@
 tic
 % Tweakable parameters
 nHiddenNeurons = 7;
-weightInitializingInterval = [-5 5];
+weightInitializingInterval = [-3 3];
 timeStep = 0.3;
 populationSize = 50;
 mutationProbabilityFactor = 5;
-creepRate = 0.25;
-crossoverProbability = 0.8;
+creepRate = 0.5;
+crossoverProbability = 0.7;
 tournamentSelectionParameter = 0.75;
 tournamentSize = 2;
 elitismParameter = 1;
@@ -14,7 +14,7 @@ nGenerations = 100000;
 iTrainingSet = 1;
 nTrainingSlopes = 10;
 iValidationSet = 2;
-nValidationSlopes = 1;
+nValidationSlopes = 5;
 
 % Fixed parameters (by the problem)
 nInputNeurons = 4;  % 3 inputs + bias 
@@ -88,7 +88,7 @@ for iGeneration = 1:nGenerations
 
     if round(maximumFitness) > round(bestFitness)
         bestFitness = maximumFitness;
-        validationFitness = EvaluateIndividual(chromosome, nInputNeurons, nHiddenNeurons, nOutputNeurons, timeStep, nValidationSlopes, iValidationSet);
+        validationFitness = EvaluateIndividual(bestChromosome, nInputNeurons, nHiddenNeurons, nOutputNeurons, timeStep, nValidationSlopes, iValidationSet);
         fprintf('Generation %d. New best! Training fitness: %.4f. Validation fitness: %.4f\n', iGeneration, bestFitness, validationFitness);
         bestOverallChromosome = bestChromosome;
         VisualizeIndividual(bestChromosome, nInputNeurons, nHiddenNeurons, nOutputNeurons, timeStep, 1, iValidationSet);

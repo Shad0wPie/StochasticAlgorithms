@@ -89,6 +89,8 @@ while bestFitness < 100
         bestOverallChromosome = bestChromosome;
         figure(1)
         PlotAll(population(1), functionData, constantRegisters, nVariableRegisters);
-        disp(simplify(DecodeChromosome(bestChromosome, x, constantRegisters, nVariableRegisters)))
     end
 end
+
+disp('Best approximation:')
+disp(simplify(DecodeChromosome(bestOverallChromosome, x, constantRegisters, nVariableRegisters)))

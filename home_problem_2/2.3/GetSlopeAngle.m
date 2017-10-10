@@ -25,11 +25,12 @@ function alpha = GetSlopeAngle(x, iSlope, iDataSet)
     elseif (iDataSet == 2)                            % Validation
         if (iSlope == 1) 
             alpha = 6 - sin(x/100) + cos(sqrt(3)*x/50);    % You may modify this!
-
-        %
-        % Insert the remaining 3 validation set slopes here
-        % 
-
+        elseif (iSlope == 2)
+            alpha = 1 + x/300;  
+        elseif (iSlope == 3)
+            alpha = 8 + 2*cos(x/400);  
+        elseif (iSlope == 4)
+            alpha = 5 + 3*cos(x/100) + 2*sin(x/1000);
         elseif (iSlope == 5) 
             alpha = 5 + sin(x/50) + cos(sqrt(5)*x/50);    % You may modify this!
         end 

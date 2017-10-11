@@ -6,8 +6,8 @@ function fitness = EvaluateIndividual(chromosome, nInputNeurons, nHiddenNeurons,
     for iSlope = 1:nSlopes
         [traveledDistance, simulationTime, ~] = RunTruckSimulation(weights, timeStep, iSlope, iDataSet, false);
         averageVelocity = traveledDistance / simulationTime;
-        slopeFitness(iSlope) = traveledDistance + traveledDistance * (averageVelocity / 25);
+        slopeFitness(iSlope) = traveledDistance + averageVelocity;
     end
-    fitness = min(slopeFitness) + mean(slopeFitness);
+    fitness = mean(slopeFitness);
     
 end

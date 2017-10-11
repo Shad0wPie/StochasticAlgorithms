@@ -1,24 +1,25 @@
-tic
 % Tweakable parameters
 nHiddenNeurons = 7;
-weightInitializingInterval = [-3 3];
-timeStep = 0.3;
-populationSize = 50;
-mutationProbabilityFactor = 5;
-creepRate = 0.5;
-crossoverProbability = 0.7;
+weightInitializingInterval = [-7 7];
+timeStep = 0.25;
+populationSize = 100;
+mutationProbabilityFactor = 2;
+creepRate = 1;
+crossoverProbability = 0.8;
 tournamentSelectionParameter = 0.75;
 tournamentSize = 2;
-elitismParameter = 1;
-nGenerations = 100000;
+elitismParameter = 2;
+maxGenerationsWithoutValidationFitnessIncrease = 100;
+
+% Fixed parameters
+nInputNeurons = 3;
+nOutputNeurons = 2;
 iTrainingSet = 1;
 nTrainingSlopes = 10;
 iValidationSet = 2;
 nValidationSlopes = 5;
-
-% Fixed parameters (by the problem)
-nInputNeurons = 4;  % 3 inputs + bias 
-nOutputNeurons = 2;
+iTestSet = 3;
+nTestSlopes = 5;
 
 population = InitializePopulation(populationSize, nInputNeurons, nHiddenNeurons, nOutputNeurons, weightInitializingInterval);
 mutationProbability = mutationProbabilityFactor/length(population(1).Chromosome);
@@ -27,10 +28,18 @@ fitness = zeros(populationSize,1);
 
 bestFitness = 0;
 bestOverallChromosome = [];
+bestValidationChromosome = [];
+bestValidationFitness = 0;
 
-% iGeneration = 0;
-for iGeneration = 1:nGenerations
-%     iGeneration = iGeneration + 1;
+trainingFitnesses = [];
+validationFitnesses = [];
+
+bStartedOverfitting = false;
+iGeneration = 0;
+generationsSinceValidationFitnessIncrease = 0;
+while ~bStartedOverfitting
+    iGeneration = iGeneration + 1;
+    generationsSinceValidationFitnessIncrease = generationsSinceValidationFitnessIncrease + 1;
     maximumFitness = 0.0;
     bestChromosome = [];
     bestIndividualIndex = 0;
@@ -72,25 +81,31 @@ for iGeneration = 1:nGenerations
     bestIndividual = population(bestIndividualIndex).Chromosome;
     population = InsertBestIndividual(tempPopulation, bestIndividual, elitismParameter);
             
-%     if mod(iGeneration, 1000) == 0
-%         toc
-%         tic
-%         totalLength = 0;
-%         medianError = median(1./fitness);
-%         for iChromosome = 1:populationSize
-%             totalLength = totalLength + length(population(iChromosome).Chromosome);
-%         end
-%         meanLength = totalLength / populationSize;
-%         fprintf('Generation %d. Median error: %.4f. Average chromosome length: %.1f\n', iGeneration, medianError, meanLength);
-%         figure(2)
-%         PlotAll(population, functionData, constantRegisters, nVariableRegisters);
-%     end
-
-    if round(maximumFitness) > round(bestFitness)
+    validationFitness = EvaluateIndividual(bestChromosome, nInputNeurons, nHiddenNeurons, nOutputNeurons, timeStep, nValidationSlopes, iValidationSet);
+    trainingFitnesses = [trainingFitnesses, maximumFitness];
+    validationFitnesses = [validationFitnesses, validationFitness];
+    
+    if maximumFitness > bestFitness
         bestFitness = maximumFitness;
-        validationFitness = EvaluateIndividual(bestChromosome, nInputNeurons, nHiddenNeurons, nOutputNeurons, timeStep, nValidationSlopes, iValidationSet);
+        if validationFitness > bestValidationFitness
+            bestValidationChromosome = bestChromosome;
+            bestValidationFitness = validationFitness;
+            generationsSinceValidationFitnessIncrease = 0;
+        end
         fprintf('Generation %d. New best! Training fitness: %.4f. Validation fitness: %.4f\n', iGeneration, bestFitness, validationFitness);
         bestOverallChromosome = bestChromosome;
-        VisualizeIndividual(bestChromosome, nInputNeurons, nHiddenNeurons, nOutputNeurons, timeStep, 1, iValidationSet);
+    end
+    if generationsSinceValidationFitnessIncrease > maxGenerationsWithoutValidationFitnessIncrease
+        bStartedOverfitting = true;
     end
 end
+
+hold on
+generations = 1:iGeneration;
+plot(generations, trainingFitnesses);
+plot(generations, validationFitnesses);
+legend('training fitness', 'validation fitness');
+title('Fitness over generations')
+
+testFitness = EvaluateIndividual(bestValidationChromosome, nInputNeurons, nHiddenNeurons, nOutputNeurons, timeStep, nTestSlopes, iTestSet);
+fprintf('\nValidation fitness: %.4f, test fitness: %.4f', bestValidationFitness, testFitness)

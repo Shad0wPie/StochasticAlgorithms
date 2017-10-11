@@ -12,7 +12,7 @@ function [distance, time, extraMetrics] = RunTruckSimulation(networkWeights, tim
     minTimeBetweenGearShifts = 2;  % s
     ambientTemperature = 283;  % K
     maxBrakeTemperature = 750;  % K
-    startingBrakeTemperature = 500;
+    startingBrakeTemperature = 500;  % K
     coolingFactor = 30;  % s
     heatingConstant = 40;  % K/s
     engineBrakeForces = [7, 5, 4, 3, 2.5, 2, 1.6, 1.4, 1.2, 1] * 3000;  % N (by gear)
@@ -22,7 +22,7 @@ function [distance, time, extraMetrics] = RunTruckSimulation(networkWeights, tim
 
     bSimulationEnded = false;
     time = 0;
-    timeSinceLastGearShift = Inf;
+    timeSinceLastGearShift = minTimeBetweenGearShifts;
     distance = 0;
     velocity = startingVelocity;
     gear = startingGear;
@@ -34,17 +34,15 @@ function [distance, time, extraMetrics] = RunTruckSimulation(networkWeights, tim
         timeSinceLastGearShift = timeSinceLastGearShift + timeStep;
         slopeAngle = GetSlopeAngle(distance, iSlope, iDataSet);        
         
-        %validation
         if slopeAngle > maxSlopeAngle || slopeAngle < 0
             disp('Invalid slopeAngle')
             disp(slopeAngle)
         end
         
-        networkInputs = [velocity/maxVelocity, slopeAngle/maxSlopeAngle, brakeTemperature/maxBrakeTemperature, 1];  % the 1 represents the bias
+        networkInputs = [velocity/maxVelocity, slopeAngle/maxSlopeAngle, brakeTemperature/maxBrakeTemperature];
         outputs = EvaluateNetwork(networkInputs, networkWeights);
-%         outputs = [0.05,-1];
         [brakePressure, gearDelta] = ParseNNOutputs(outputs);
-        if gearDelta ~= 0 && timeSinceLastGearShift > minTimeBetweenGearShifts
+        if gearDelta ~= 0 && timeSinceLastGearShift >= minTimeBetweenGearShifts
             if ~(gearDelta == -1 && gear == 1) && ~(gearDelta == 1 && gear == length(engineBrakeForces))
                 gear = gear + gearDelta;
                 timeSinceLastGearShift = 0;
@@ -59,9 +57,6 @@ function [distance, time, extraMetrics] = RunTruckSimulation(networkWeights, tim
         if distance >= slopeLength || velocity > maxVelocity || velocity < minVelocity || brakeTemperature > maxBrakeTemperature
             bSimulationEnded = true;
             distance = min(distance,1000);
-%             disp(distance);
-%             disp(velocity);
-%             disp(brakeTemperature);
         end
         
         if bStoreExtraMetrics

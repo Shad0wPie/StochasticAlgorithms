@@ -1,7 +1,6 @@
 function newChromosomePair = Cross(chromosome1, chromosome2)
 
-    nGenes = size(chromosome1,2); % Both chromosomes must have 
-                                  % the same length!
+    nGenes = size(chromosome1,2);
     crossoverPoint = 1 + fix(rand*(nGenes-1));
     
     newChromosomePair = zeros(2,nGenes);

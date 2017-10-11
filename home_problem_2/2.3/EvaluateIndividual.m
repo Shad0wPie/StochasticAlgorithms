@@ -9,5 +9,8 @@ function fitness = EvaluateIndividual(chromosome, nInputNeurons, nHiddenNeurons,
         slopeFitness(iSlope) = traveledDistance + averageVelocity;
     end
     fitness = mean(slopeFitness);
+    fprintf('%.2f\n',mean(slopeFitness))
+    fprintf('%.2f\n',min(slopeFitness))
+    fprintf('%.2f\n',max(slopeFitness))
     
 end

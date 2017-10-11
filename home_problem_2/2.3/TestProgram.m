@@ -3,8 +3,9 @@ nHiddenNeurons = 7;
 nInputNeurons = 3;
 nOutputNeurons = 2;
 
-iDataSet = 3;
-iSlope = 1;
+% Change these to modify which slop to run!
+iDataSet = 2;
+iSlope = 2;
 
 bestChromosome = load('bestChromosome.mat');
 bestChromosome = bestChromosome.bestValidationChromosome;
